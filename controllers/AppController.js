@@ -2,21 +2,25 @@ import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
 
 class AppController {
-  static async getStatus(req, res) {
-    res.status(200).json({
-      redis: redisClient.isAlive(),
-      db: dbClient.isAlive(),
-    });
+  static getStatus(request, response) {
+    try {
+      const redis = redisClient.isAlive();
+      const db = dbClient.isAlive();
+      response.status(200).send({ redis, db });
+    } catch (error) {
+      console.log(error);
+    }
   }
-  static async getStats(req, res) {
+
+  static async getStats(request, response) {
     try {
       const users = await dbClient.nbUsers();
       const files = await dbClient.nbFiles();
-      res.status(200).json({ users, files });
+      response.status(200).send({ users, files });
     } catch (error) {
-      console.error('Error fetching stats:', error);
-      res.status(500).json({ error: 'Unable to fetch stats' });
+      console.log(error);
     }
   }
 }
+
 export default AppController;
